@@ -1,0 +1,45 @@
+spring:
+  http:
+    multipart:
+      max-request-size: 1024Mb
+      max-file-size: 200Mb
+  data:
+    hbase:
+      quorum: 172.16.0.141,172.16.0.140,172.16.0.139
+      zkClientPort: 2181
+    # 资源配置
+  resources:
+    # 静态资源路径
+    static-locations: file:static/
+
+server:
+  port: 8888
+
+
+
+
+kafka:
+  consumer:
+    servers: CDH-Server4:9092
+    enable:
+      auto:
+        commit: true
+    session:
+      timeout: 6000
+    auto:
+      commit:
+        interval: 100
+      offset:
+        reset: latest
+    topic: mhd-notice
+    group:
+      id: mhd-notice
+    concurrency: 10
+  producer:
+    servers: CDH-Server4:9092
+    retries: 0
+    batch:
+      size: 94096
+    linger: 1
+    buffer:
+      memory: 940960
