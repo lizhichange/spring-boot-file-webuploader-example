@@ -1,0 +1,25 @@
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+/target/
+*/target/
+
+/logs/
+
+
+# eclipse
+.settings/
+.classpath
+.project
+logs/
+.vscode
+# idea
+.idea/
+*.iml
+*.ipr
+*.iws
+*velocity.log*
+
