@@ -2,12 +2,16 @@ package com.webuploader.controller;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.webuploader.config.Listener;
 import com.webuploader.repository.QrCodeNewRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.util.concurrent.ListenableFutureCallback;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,6 +19,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +44,8 @@ public class UploadController {
     KafkaTemplate<String, String> template;
 
 
+    @Autowired
+    Listener listener;
     /**
      * The Named thread factory.
      */
@@ -48,10 +56,24 @@ public class UploadController {
      */
 
 
-    private ExecutorService pool = new ThreadPoolExecutor(100, 200,
-            0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
+    private ExecutorService pool;
 
+    @PostConstruct
+    void init() {
+
+        pool = new ThreadPoolExecutor(100, 200,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
+
+
+    }
+
+    @PreDestroy
+    void destroy() {
+        if (pool != null) {
+            pool.shutdown();
+        }
+    }
 
     /**
      * Index string.
@@ -72,6 +94,7 @@ public class UploadController {
     public String render() {
         return "index";
     }
+
 
     /**
      * new annotation since 4.3
@@ -105,12 +128,12 @@ public class UploadController {
                     for (Future<Integer> it : futureList) {
                         Integer integer = it.get();
                     }
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
+                } catch (InterruptedException | ExecutionException ignored) {
+
                 }
             }
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException ignored) {
+
         }
         return "suc";
     }
@@ -129,8 +152,7 @@ public class UploadController {
         public List<String> call() throws Exception {
             List<String> strings = Lists.newArrayList();
             try (InputStream inputStream = file.getInputStream()) {
-                BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(inputStream));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                 while (reader.ready()) {
                     String line = reader.readLine();
                     strings.add(line);
@@ -171,7 +193,22 @@ public class UploadController {
         @Override
         public Integer call() throws Exception {
             for (String line : list) {
-                template.send("qr_code_notice", line, line);
+
+                ListenableFuture<SendResult<String, String>> listenableFuture = template.send("qr_code_notice", line, line);
+
+
+                listenableFuture.addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
+                    @Override
+                    public void onFailure(Throwable throwable) {
+
+
+                    }
+
+                    @Override
+                    public void onSuccess(SendResult<String, String> result) {
+
+                    }
+                });
             }
             LOGGER.info("处理成功,当前线程名:{}", Thread.currentThread().getName());
             return 1;
