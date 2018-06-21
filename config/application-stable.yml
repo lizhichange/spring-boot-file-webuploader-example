@@ -10,6 +10,13 @@ spring:
   resources:
     # 静态资源路径
     static-locations: file:static/
+  datasource:
+      url: jdbc:mysql://localhost:3306/test
+      type: com.alibaba.druid.pool.DruidDataSource
+      username: root
+      password: root
+      driver-class-name: com.mysql.jdbc.Driver
+
 
 
 server:

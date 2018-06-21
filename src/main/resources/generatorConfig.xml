@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017.  Willard Hu. All rights reserved.
+  -->
+
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<!--
+XML 配置节点描述官方文档 http://www.mybatis.org/generator/configreference/xmlconfig.html
+-->
+<generatorConfiguration>
+
+
+    <context id="mysql_saasgift" targetRuntime="MyBatis3">
+
+
+        <plugin type="org.mybatis.generator.plugins.SerializablePlugin"/>
+        <plugin type="org.mybatis.generator.plugins.ToStringPlugin"/>
+        <plugin type="org.mybatis.generator.plugins.PaginationPlugin"/>
+        <commentGenerator>
+            <property name="suppressAllComments" value="true"/>
+        </commentGenerator>
+
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://127.0.0.1:3306/test?characterEncoding=UTF-8"
+                        userId="root"
+                        password="root"/>
+
+        <javaModelGenerator targetPackage="com.webuploader.dal.dataobj"
+                            targetProject="src/main/java">
+            <property name="trimStrings" value="true"/>
+
+            <!-- 格式化java代码 -->
+            <property name="javaFormatter" value="org.mybatis.generator.api.dom.DefaultJavaFormatter"/>
+            <!-- 格式化XML代码 -->
+            <property name="xmlFormatter" value="org.mybatis.generator.api.dom.DefaultXmlFormatter"/>
+
+            <!-- 是否允许子包，即targetPackage.schemaName.tableName -->
+            <property name="enableSubPackages" value="false"/>
+
+            <!-- 建立的Model对象是否 不可改变  即生成的Model对象不会有 setter方法，只有构造方法 -->
+            <property name="immutable" value="false"/>
+
+            <!-- 是否对类CHAR类型的列的数据进行trim操作 -->
+            <property name="trimStrings" value="false"/>
+        </javaModelGenerator>
+
+        <sqlMapGenerator targetPackage="sqlmap" targetProject="src/main/resources"/>
+
+        <javaClientGenerator targetPackage="com.webuploader.dal.mapper"
+                             targetProject="src/main/java" type="XMLMAPPER"/>
+
+        <table tableName="order_match"/>
+
+
+        <!--<table tableName="" domainObjectName=""/>-->
+
+    </context>
+</generatorConfiguration>

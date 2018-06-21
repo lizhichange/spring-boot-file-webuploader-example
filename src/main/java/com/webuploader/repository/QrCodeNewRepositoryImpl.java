@@ -1,11 +1,7 @@
 package com.webuploader.repository;
 
 
-
-
-
 import org.apache.hadoop.hbase.client.Put;
-
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.hadoop.hbase.HbaseTemplate;
